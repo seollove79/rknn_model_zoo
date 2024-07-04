@@ -85,18 +85,20 @@ def nms_boxes(boxes, scores):
     keep = np.array(keep)
     return keep
 
+def softmax(x, axis=None):
+    x = x- x.max(axis=axis, keepdims=True)
+    y = np.exp(x)
+    return y / y.sum(axis=axis, keepdims = True)
+
 def dfl(position):
-    # Distribution Focal Loss (DFL)
-    import torch
-    x = torch.tensor(position)
-    n,c,h,w = x.shape
+    n,c,h,w = position.shape
     p_num = 4
     mc = c//p_num
-    y = x.reshape(n,p_num,mc,h,w)
-    y = y.softmax(2)
-    acc_metrix = torch.tensor(range(mc)).float().reshape(1,1,mc,1,1)
+    y = position.reshape(n,p_num,mc,h,w)
+    y = softmax(y,2)
+    acc_metrix = np.array(range(mc),dtype=float),reshape(1,1,mc,1,1)
     y = (y*acc_metrix).sum(2)
-    return y.numpy()
+    return y
 
 
 def box_process(position):
